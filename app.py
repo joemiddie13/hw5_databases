@@ -57,25 +57,39 @@ def create():
     else:
         return render_template('create.html')
 
+# @app.route('/plant/<plant_id>')
+# def detail(plant_id):
+#     """Display the plant detail page & process data from the harvest form."""
+
+#     # TODO: Replace the following line with a database call to retrieve *one*
+#     # plant from the database, whose id matches the id passed in via the URL.
+#     obj_id = ObjectId(plant_id)
+#     plant_to_show = mongo.db.plants.find_one({'_id': obj_id})
+    
+
+#     # TODO: Use the `find` database operation to find all harvests for the
+#     # plant's id.
+#     # HINT: This query should be on the `harvests` collection, not the `plants`
+#     # collection.
+#     harvests = mongo.db.harvests.find({'plant_id': plant_id})
+
+#     context = {
+#         'plant' : plant_to_show,
+#         'harvests': harvests
+#     }
+#     return render_template('detail.html', **context)
+
 @app.route('/plant/<plant_id>')
 def detail(plant_id):
-    """Display the plant detail page & process data from the harvest form."""
-
-    # TODO: Replace the following line with a database call to retrieve *one*
-    # plant from the database, whose id matches the id passed in via the URL.
-    plant_to_show = ''
-
-    # TODO: Use the `find` database operation to find all harvests for the
-    # plant's id.
-    # HINT: This query should be on the `harvests` collection, not the `plants`
-    # collection.
-    harvests = ''
+    plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+    harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
 
     context = {
-        'plant' : plant_to_show,
-        'harvests': harvests
+        'plant': plant_to_show,
+        'harvests': list(harvests)
     }
     return render_template('detail.html', **context)
+
 
 @app.route('/harvest/<plant_id>', methods=['POST'])
 def harvest(plant_id):
@@ -86,13 +100,15 @@ def harvest(plant_id):
     # TODO: Create a new harvest object by passing in the form data from the
     # detail page form.
     new_harvest = {
-        'quantity': '', # e.g. '3 tomatoes'
-        'date': '',
-        'plant_id': plant_id
+        'quantity': request.form['harvested_amount'], # e.g. '3 tomatoes'
+        'date': request.form['date_harvested'],
+        'plant_id': ObjectId(plant_id)
     }
 
     # TODO: Make an `insert_one` database call to insert the object into the 
     # `harvests` collection of the database.
+
+    mongo.db.harvests.insert_one(new_harvest)
 
     return redirect(url_for('detail', plant_id=plant_id))
 
