@@ -216,3 +216,36 @@ form input[type="submit"]:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
+.comment-form, .comments-section {
+    width: 100%;
+    max-width: 700px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.comment-form fieldset, .comments-container {
+    width: 100%;
+    border: 1px solid #229954;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin-top: 20px;
+}
+
+.comment-form label, .comments-section h3 {
+    text-align: center;
+    color: #229954;
+}
+
+.comments-container {
+    background-color: #f5f5f5;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.comment {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}

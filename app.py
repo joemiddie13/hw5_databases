@@ -60,15 +60,15 @@ def create():
 @app.route('/plant/<plant_id>')
 def detail(plant_id):
     plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+    harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
+    comments = mongo.db.comments.find({'plant_id': ObjectId(plant_id)})
+
     if not plant_to_show:
         return render_template('404.html'), 404
-    harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
 
-    context = {
-        'plant': plant_to_show,
-        'harvests': list(harvests)
-    }
-    return render_template('detail.html', **context)
+    return render_template('detail.html', plant=plant_to_show, harvests=harvests, comments=comments)
+
+
 
 
 @app.route('/harvest/<plant_id>', methods=['POST'])
@@ -96,7 +96,6 @@ def harvest(plant_id):
 def edit(plant_id):
     """Shows the edit page and accepts a POST request with edited data."""
 
-    # Check if the plant exists in the database
     plant_to_edit = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
     if not plant_to_edit:
         return render_template('404.html'), 404
@@ -117,7 +116,6 @@ def edit(plant_id):
         return redirect(url_for('detail', plant_id=plant_id))
     
     else:
-        # Display the edit form with the current plant data
         return render_template('edit.html', plant=plant_to_edit)
 
     
@@ -135,6 +133,16 @@ def delete(plant_id):
     mongo.db.harvests.delete_many({'plant_id': ObjectId(plant_id)})
 
     return redirect(url_for('plants_list'))
+
+@app.route('/add_comment/<plant_id>', methods=['POST'])
+def add_comment(plant_id):
+    comment_text = request.form['comment']
+    mongo.db.comments.insert_one({
+        'plant_id': ObjectId(plant_id),
+        'text': comment_text,
+    })
+    return redirect(url_for('detail', plant_id=plant_id))
+
 
 
 if __name__ == '__main__':

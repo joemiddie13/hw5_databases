@@ -5,6 +5,12 @@
     <!-- Displaying the Plant Details -->
     <h1>{{ plant.name }}</h1>
     <img src="{{ plant.photo_url }}" alt="{{ plant.name }}">
+    <div class="star-rating">
+        {% for number in range(5, 0, -1) %}
+            <input type="radio" id="star{{ number }}" name="rating" value="{{ number }}"><label for="star{{ number }}" title="{{ number }} stars"></label>
+        {% endfor %}
+    </div>
+    
 
     <section id="info">
         <h3>Info</h3>
@@ -53,6 +59,28 @@
     <form action="/delete/{{ plant._id }}" method="POST" id="delete-form" onsubmit="return confirm_delete()">
         <input type="submit" class="nav" onclick="delete_modal()" value="Delete Plant">
     </form>
+
+    <!-- Comment Form -->
+    <form method="POST" action="{{ url_for('add_comment', plant_id=plant._id) }}" class="comment-form">
+        <fieldset>
+            <legend>Add a Comment</legend>
+            <label for="comment">Comment:</label>
+            <textarea name="comment" id="comment"></textarea>
+            <input type="submit" value="Add Comment" class="submit">
+        </fieldset>
+    </form>
+
+    <!-- Display Comments -->
+    <section class="comments-section">
+        <h3>Comments:</h3>
+        <div class="comments-container">
+            {% for comment in comments %}
+                <div class="comment">{{ comment.text }}</div>
+                <!-- Optionally display commenter's name or username here -->
+            {% endfor %}
+        </div>
+    </section>
+
 </main>
 
 {% endblock content %}
