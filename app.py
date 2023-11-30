@@ -60,6 +60,8 @@ def create():
 @app.route('/plant/<plant_id>')
 def detail(plant_id):
     plant_to_show = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+    if not plant_to_show:
+        return render_template('404.html'), 404
     harvests = mongo.db.harvests.find({'plant_id': ObjectId(plant_id)})
 
     context = {
@@ -93,9 +95,13 @@ def harvest(plant_id):
 @app.route('/edit/<plant_id>', methods=['GET', 'POST'])
 def edit(plant_id):
     """Shows the edit page and accepts a POST request with edited data."""
+
+    # Check if the plant exists in the database
+    plant_to_edit = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+    if not plant_to_edit:
+        return render_template('404.html'), 404
+
     if request.method == 'POST':
-        # TODO: Make an `update_one` database call to update the plant with the
-        # given id. Make sure to put the updated fields in the `$set` object.
         updated_data = {
             'name': request.form['plant_name'],
             'variety': request.form['variety'],
@@ -111,21 +117,25 @@ def edit(plant_id):
         return redirect(url_for('detail', plant_id=plant_id))
     
     else:
-        # Retrieve the current data of the plant to be edited
-        plant_to_edit = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+        # Display the edit form with the current plant data
         return render_template('edit.html', plant=plant_to_edit)
+
     
 @app.route('/delete/<plant_id>', methods=['POST'])
 def delete(plant_id):
-    # TODO: Make a `delete_one` database call to delete the plant with the given
-    # id.
+    # Check if the plant exists
+    plant_to_delete = mongo.db.plants.find_one({'_id': ObjectId(plant_id)})
+    if not plant_to_delete:
+        return render_template('404.html'), 404
+
+    # Delete the plant with the given id
     mongo.db.plants.delete_one({'_id': ObjectId(plant_id)})
 
-    # TODO: Also, make a `delete_many` database call to delete all harvests with
-    # the given plant id.
+    # Delete all harvests associated with the given plant id
     mongo.db.harvests.delete_many({'plant_id': ObjectId(plant_id)})
 
     return redirect(url_for('plants_list'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
